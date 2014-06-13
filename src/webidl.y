@@ -27,10 +27,12 @@ other           [^\t\n\r 0-9A-Za-z]
 'const'         {return 'const'}
 'DOMString'     {return 'DOMString'}
 'exception'     {return 'exception'}
+'getter'        {return 'getter'}
 'float'         {return 'float'}
 'inherit'       {return 'inherit'}
 'interface'     {return 'interface'}
 'long'          {return 'long'}
+'object'        {return 'object'}
 'readonly'      {return 'readonly'}
 'typedef'       {return 'typedef'}
 'void'          {return 'void'}
@@ -266,11 +268,14 @@ OperationOrIterator
     | SpecialOperation;
 
 SpecialOperation
-    : Special Specials ReturnType OperationRest;
+    : Special Specials ReturnType OperationRest
+        {$$ = $4; $$.specials = $2; $$.specials.unshift($1); $$.returnType = $3;};
 
 Specials
     : Special Specials
-    | ε;
+        {$$ = $2; $$.unshift($1)}
+    |
+        {$$ = []};
 
 Special
     : "getter"
@@ -297,11 +302,12 @@ OptionalIteratorInterface
 
 OperationRest
     : OptionalIdentifier "(" ArgumentList ")" ";"
-        {$$ = {memberType: 'operation', name: $1, arguments: $3}};
+        {$$ = {memberType: 'operation', name: $1, arguments: $3, specials: []}};
 
 OptionalIdentifier
     : identifier
-    | ε;
+    |
+        {$$ = null};
 
 ArgumentList
     : Argument Arguments

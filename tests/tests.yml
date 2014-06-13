@@ -1,3 +1,27 @@
+presets:
+  definition: &definition
+    inherits: null
+    attributes: []
+    members: []
+  interface: &interface
+    <<: *definition
+    definition: interface
+  exception: &exception
+    <<: *definition
+    definition: exception
+  typedef: &typedef
+    definition: typedef
+    attributes: []
+  attribute: &attribute
+    memberType: attribute
+    readOnly: false
+    inherit: false
+  operation: &operation
+    memberType: operation
+    returnType: null
+    arguments: []
+    specials: []
+
 tests:
   - name: Interfaces(1)
     idl: |
@@ -13,13 +37,12 @@ tests:
            void drawText(float x, float y, DOMString text);
          };
     expected:
-      - definition: interface
+      - <<: *interface
         name: GraphicalWindow
-        inherits: null
         attributes:
           - Constructor
         members:
-          - memberType: attribute
+          - <<: *attribute
             name: width
             type: &unsignedLong
               name: unsigned long
@@ -27,20 +50,16 @@ tests:
                 array: false
                 nullable: false
             readOnly: true
-            inherit: false
-          - memberType: attribute
+          - <<: *attribute
             name: height
             type: *unsignedLong
             readOnly: true
-            inherit: false
-          - memberType: attribute
+          - <<: *attribute
             name: currentPaint
             type:
               name: Paint
               suffix: *emptySuffix
-            readOnly: false
-            inherit: false
-          - memberType: operation
+          - <<: *operation
             name: drawRectangle
             arguments:
               - type: &float
@@ -53,8 +72,7 @@ tests:
                 name: width
               - type: *float
                 name: height
-            returnType: null
-          - memberType: operation
+          - <<: *operation
             name: drawText
             arguments:
               - type: *float
@@ -65,7 +83,6 @@ tests:
                   name: DOMString
                   suffix: *emptySuffix
                 name: text
-            returnType: null
   - name: Interfaces(2)
     idl: |
          exception GraphicsException {
@@ -80,68 +97,84 @@ tests:
            attribute float blue;
          };
     expected:
-      - definition: exception
+      - <<: *exception
         name: GraphicsException
-        inherits: null
-        attributes: []
         members:
           - {type: *DOMString, name: reason, memberType: field}
-      - definition: interface
+      - <<: *interface
         name: Paint
-        inherits: null
-        attributes: []
-        members: []
-      - definition: interface
+      - <<: *interface
         name: SolidColor
         inherits: Paint
-        attributes: []
         members:
-          - memberType: attribute
+          - <<: *attribute
             type: *float
             name: red
-            readOnly: false
-            inherit: false
-          - memberType: attribute
+          - <<: *attribute
             type: *float
             name: green
-            readOnly: false
-            inherit: false
-          - memberType: attribute
+          - <<: *attribute
             type: *float
             name: blue
-            readOnly: false
-            inherit: false
+  - name: Interfaces(3)
+    idl: |
+         interface System {
+
+           // Operation identifier:          "createObject"
+           // Operation argument identifier: "interface"
+           object createObject(DOMString _interface);
+
+           // Operation argument identifier: "interface"
+           object[] createObjectArray(DOMString interface);
+
+           // Operation has no identifier; it declares a getter.
+           getter DOMString (DOMString keyName);
+         };
+    expected:
+      - <<: *interface
+        name: System
+        members:
+          - <<: *operation
+            name: createObject
+            arguments: [{type: *DOMString, name: _interface}]
+            returnType: &object
+              name: object
+              suffix: *emptySuffix
+          - <<: *operation
+            name: createObjectArray
+            arguments: [{type: *DOMString, name: interface}]
+            returnType: {name: object, suffix: {array: true, nullable: false}}
+          - <<: *operation
+            name: null
+            specials: [getter]
+            arguments: [{type: *DOMString, name: keyName}]
+            returnType: *DOMString
   - name: typedef
     idl: |
          typedef long[] ArrayOfLongs;
     expected:
-      - definition: typedef
+      - <<: *typedef
         type:
             name: long
-            suffix:
-              array: true
-              nullable: false
+            suffix: {array: true, nullable: false}
         name: ArrayOfLongs
-        attributes: []
   - name: Using typedef
     idl: |
          interface B : A {
            void f(ArrayOfLongs x);
          };
     expected:
-      - definition: interface
+      - <<: *interface
         name: B
         inherits: A
         members:
-          - memberType: operation
+          - <<: *operation
             name: f
-            returnType: null
             arguments:
               - name: x
                 type:
                   name: ArrayOfLongs
                   suffix: *emptySuffix
-        attributes: []
   - name: Exceptions(1)
     idl: |
           exception FrameworkException {
@@ -153,9 +186,8 @@ tests:
             long code;
           };
     expected:
-      - definition: exception
+      - <<: *exception
         name: FrameworkException
-        inherits: null
         members:
           - memberType: const
             type: &long
@@ -166,5 +198,4 @@ tests:
           - memberType: field
             type: *long
             name: code
-        attributes: []
 
