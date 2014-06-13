@@ -10,14 +10,30 @@ other           [^\t\n\r 0-9A-Za-z]
 
 %%
 \s+             /* skip whitespace */
+{whitespace}    /* skip whitespace */
 \/\/[^\n]*      /* skip comment */
 \#[^\n]*        /* skip comment */
-exception       {return 'exception';}
-interface       {return 'interface';}
-long            {return 'long';}
-{identifier}    {return 'identifier';}
-<<EOF>>         {return 'EOF'};
-.               {return yytext;}
+':'             {return ':'}
+';'             {return ';'}
+','             {return ','}
+'{'             {return '{'}
+'}'             {return '}'}
+'['             {return '['}
+']'             {return ']'}
+'('             {return '('}
+')'             {return ')'}
+'attribute'     {return 'attribute'}
+'DOMString'     {return 'DOMString'}
+'exception'     {return 'exception'}
+'float'         {return 'float'}
+'inherit'       {return 'inherit'}
+'interface'     {return 'interface'}
+'long'          {return 'long'}
+'readonly'      {return 'readonly'}
+'void'          {return 'void'}
+'unsigned'      {return 'unsigned'}
+{identifier}    {return 'identifier'}
+<<EOF>>         {return 'EOF'}
 /lex
 
 %%
@@ -31,15 +47,15 @@ Definitions
         {
             $$ = $2;
             $1.attributes = [];
-            $$.push($1);
+            $$.unshift($1);
         }
     | ExtendedAttributeList Definition Definitions
         {
             $$ = $3;
             $2.attributes = $1;
-            $$.push($2);
+            $$.unshift($2);
         }
-    | ε
+    |
         {$$ = []};
 
 Definition
@@ -75,8 +91,10 @@ PartialInterface
 
 InterfaceMembers
     : InterfaceMember InterfaceMembers
+        {$$ = $2; $$.unshift($1)}
     | ExtendedAttributeList InterfaceMember InterfaceMembers
-    | ε;
+    |
+        {$$ = []};
 
 InterfaceMember
     : Const
@@ -109,14 +127,15 @@ Exception
 
 ExceptionMembers
     : ExtendedAttributeList ExceptionMember ExceptionMembers
-        {return $1}
+    | ExceptionMember ExceptionMembers
+        {$$ = $2; $$.unshift($1)}
     |
         {$$ = []};
 
 Inheritance
     : ":" identifier
         {$$ = $2}
-    | ε
+    |
         {$$ = null};
 
 Enum
@@ -211,21 +230,32 @@ StaticMemberRest
     | ReturnType OperationRest;
 
 Attribute
-    : Inherit AttributeRest;
+    : Inherit AttributeRest
+        {$$ = $2; $$.inherit = $1}
+    | AttributeRest
+        {$$ = $1; $$.inherit = false};
 
 AttributeRest
-    : ReadOnly "attribute" Type identifier ";";
+    : ReadOnly "attribute" Type identifier ";"
+        {$$ = {readOnly: $1, memberType: $2, type: $3, name: $4}}
+    | "attribute" Type identifier ";"
+        {$$ = {readOnly: false, memberType: $1, type: $2, name: $3}};
 
 Inherit
     : "inherit"
-    | ε;
+        {$$ = true}
+    |
+        {$$ = false};
 
 ReadOnly
     : "readonly"
-    | ε;
+        {$$ = true}
+    |
+        {$$ = false};
 
 OperationOrIterator
     : ReturnType OperationOrIteratorRest
+        {$$ = $2; $$.returnType = $1}
     | SpecialOperation;
 
 SpecialOperation
@@ -244,7 +274,8 @@ Special
 
 OperationOrIteratorRest
     : IteratorRest
-    | OperationRest;
+    | OperationRest
+        {$$ = $1};
 
 IteratorRest
     : "iterator" OptionalIteratorInterfaceOrObject ";";
@@ -258,7 +289,8 @@ OptionalIteratorInterface
     | ε;
 
 OperationRest
-    : OptionalIdentifier "(" ArgumentList ")" ";";
+    : OptionalIdentifier "(" ArgumentList ")" ";"
+        {$$ = {memberType: 'operation', name: $1, arguments: $3}};
 
 OptionalIdentifier
     : identifier
@@ -266,18 +298,24 @@ OptionalIdentifier
 
 ArgumentList
     : Argument Arguments
-    | ε;
+        {$$ = $2; $2.unshift($1)}
+    |
+        {$$ = []};
 
 Arguments
     : "," Argument Arguments
-    | ε;
+        {$$ = $3; $$.unshift($2)}
+    |
+        {$$ = []};
 
 Argument
-    : ExtendedAttributeList OptionalOrRequiredArgument;
+    : ExtendedAttributeList OptionalOrRequiredArgument
+    | OptionalOrRequiredArgument;
 
 OptionalOrRequiredArgument
     : "optional" Type ArgumentName Default
-    | Type Ellipsis ArgumentName;
+    | Type Ellipsis ArgumentName
+        {$$ = {type: $1, name: $3}};
 
 ArgumentName
     : ArgumentNameKeyword
@@ -292,7 +330,8 @@ ExceptionMember
     | ExceptionField;
 
 ExceptionField
-    : Type identifier ";";
+    : Type identifier ";"
+        {$$ = {type: $1, name: $2}};
 
 ExtendedAttributeList
     : "[" ExtendedAttribute ExtendedAttributes "]"
@@ -440,6 +479,7 @@ FloatType
 
 UnsignedIntegerType
     : "unsigned" IntegerType
+        {$$ = $1 + " " + $2}
     | IntegerType;
 
 IntegerType
@@ -465,7 +505,9 @@ Null
 
 ReturnType
     : Type
-    | "void";
+        {$$ = $1}
+    | "void"
+        {$$ = null};
 
 IdentifierList
     : identifier Identifiers;

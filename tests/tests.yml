@@ -1,0 +1,105 @@
+tests:
+  - name: Interfaces(1)
+    idl: |
+         [Constructor]
+         interface GraphicalWindow {
+           readonly attribute unsigned long width;
+           readonly attribute unsigned long height;
+
+           attribute Paint currentPaint;
+
+           void drawRectangle(float x, float y, float width, float height);
+
+           void drawText(float x, float y, DOMString text);
+         };
+    expected:
+      - type: interface
+        name: GraphicalWindow
+        inherits: null
+        attributes:
+          - Constructor
+        members:
+          - memberType: attribute
+            name: width
+            type: unsigned long
+            readOnly: true
+            inherit: false
+          - memberType: attribute
+            name: height
+            type: unsigned long
+            readOnly: true
+            inherit: false
+          - memberType: attribute
+            name: currentPaint
+            type: Paint
+            readOnly: false
+            inherit: false
+          - memberType: operation
+            name: drawRectangle
+            arguments:
+              - type: float
+                name: x
+              - type: float
+                name: y
+              - type: float
+                name: width
+              - type: float
+                name: height
+            returnType: null
+          - memberType: operation
+            name: drawText
+            arguments:
+              - type: float
+                name: x
+              - type: float
+                name: y
+              - type: DOMString
+                name: text
+            returnType: null
+  - name: Interfaces(2)
+    idl: |
+         exception GraphicsException {
+           DOMString reason;
+         };
+
+         interface Paint { };
+
+         interface SolidColor : Paint {
+           attribute float red;
+           attribute float green;
+           attribute float blue;
+         };
+    expected:
+      - type: exception
+        name: GraphicsException
+        inherits: null
+        attributes: []
+        members:
+          - type: DOMString
+            name: reason
+      - type: interface
+        name: Paint
+        inherits: null
+        attributes: []
+        members: []
+      - type: interface
+        name: SolidColor
+        inherits: Paint
+        attributes: []
+        members:
+          - memberType: attribute
+            type: float
+            name: red
+            readOnly: false
+            inherit: false
+          - memberType: attribute
+            type: float
+            name: green
+            readOnly: false
+            inherit: false
+          - memberType: attribute
+            type: float
+            name: blue
+            readOnly: false
+            inherit: false
+
