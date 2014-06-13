@@ -1,8 +1,10 @@
 presets:
   definition: &definition
+    definition: null
+    name: null
     inherits: null
-    attributes: []
     members: []
+    attributes: []
   interface: &interface
     <<: *definition
     definition: interface
@@ -17,8 +19,10 @@ presets:
     definition: typedef
     attributes: []
   attribute: &attribute
-    memberType: attribute
     readOnly: false
+    memberType: attribute
+    type: null
+    name: null
     inherit: false
   dictionaryMember: &dictionaryMember
     memberType: dictionaryMember
@@ -284,3 +288,77 @@ tests:
           - <<: *operation
             name: doTask
             arguments: [{type: *DOMString, name: type}, {type: {name: Options, suffix: *emptySuffix}, name: options}]
+  - name: Referential interfaces
+    idl: |
+         interface Animal {
+           attribute DOMString name;
+         };
+
+         interface Human : Animal {
+           attribute Dog? pet;
+         };
+
+         interface Dog : Animal {
+           attribute Human? owner;
+         };
+    expected:
+      - <<: *interface
+        name: Animal
+        members:
+          - <<: *attribute
+            name: name
+            type: *DOMString
+      - <<: *interface
+        name: Human
+        inherits: Animal
+        members:
+          - <<: *attribute
+            name: pet
+            type: {name: Dog, suffix: *nullable}
+      - <<: *interface
+        name: Dog
+        inherits: Animal
+        members:
+          - <<: *attribute
+            name: owner
+            type: {name: Human, suffix: *nullable}
+  - name: DOM Interfaces
+    idl: |
+         interface Node {
+           readonly attribute DOMString nodeName;
+           readonly attribute Node? parentNode;
+           Node appendChild(Node newChild);
+           void addEventListener(DOMString type, EventListener listener);
+         };
+
+         callback interface EventListener {
+           void handleEvent(Event event);
+         };
+    expected:
+      - <<: *interface
+        name: Node
+        members:
+          - <<: *attribute
+            name: nodeName
+            type: *DOMString
+            readOnly: true
+          - <<: *attribute
+            name: parentNode
+            type: {name: Node, suffix: *nullable}
+            readOnly: true
+          - <<: *operation
+            name: appendChild
+            returnType: &Node
+              name: Node
+              suffix: *emptySuffix
+            arguments: [{name: newChild, type: *Node}]
+          - <<: *operation
+            name: addEventListener
+            arguments: [{name: type, type: *DOMString}, {name: listener, type: {name: EventListener, suffix: *emptySuffix}}]
+      - <<: *interface
+        name: EventListener
+        callback: true
+        members:
+          - <<: *operation
+            name: handleEvent
+            arguments: [{name: event, type: {name: Event, suffix: *emptySuffix}}]
