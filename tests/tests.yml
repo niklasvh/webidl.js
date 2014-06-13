@@ -21,79 +21,49 @@ tests:
         members:
           - memberType: attribute
             name: width
-            type:
+            type: &unsignedLong
               name: unsigned long
-              suffix:
+              suffix: &emptySuffix
                 array: false
                 nullable: false
             readOnly: true
             inherit: false
           - memberType: attribute
             name: height
-            type:
-              name: unsigned long
-              suffix:
-                array: false
-                nullable: false
+            type: *unsignedLong
             readOnly: true
             inherit: false
           - memberType: attribute
             name: currentPaint
             type:
               name: Paint
-              suffix:
-                array: false
-                nullable: false
+              suffix: *emptySuffix
             readOnly: false
             inherit: false
           - memberType: operation
             name: drawRectangle
             arguments:
-              - type:
+              - type: &float
                   name: float
-                  suffix:
-                    array: false
-                    nullable: false
+                  suffix: *emptySuffix
                 name: x
-              - type:
-                  name: float
-                  suffix:
-                    array: false
-                    nullable: false
+              - type: *float
                 name: y
-              - type:
-                  name: float
-                  suffix:
-                    array: false
-                    nullable: false
+              - type: *float
                 name: width
-              - type:
-                  name: float
-                  suffix:
-                    array: false
-                    nullable: false
+              - type: *float
                 name: height
             returnType: null
           - memberType: operation
             name: drawText
             arguments:
-              - type:
-                  name: float
-                  suffix:
-                    array: false
-                    nullable: false
+              - type: *float
                 name: x
-              - type:
-                  name: float
-                  suffix:
-                    array: false
-                    nullable: false
+              - type: *float
                 name: y
-              - type:
+              - type: &DOMString
                   name: DOMString
-                  suffix:
-                    array: false
-                    nullable: false
+                  suffix: *emptySuffix
                 name: text
             returnType: null
   - name: Interfaces(2)
@@ -115,12 +85,7 @@ tests:
         inherits: null
         attributes: []
         members:
-          - type:
-              name: DOMString
-              suffix:
-                array: false
-                nullable: false
-            name: reason
+          - {type: *DOMString, name: reason}
       - definition: interface
         name: Paint
         inherits: null
@@ -132,29 +97,17 @@ tests:
         attributes: []
         members:
           - memberType: attribute
-            type:
-              name: float
-              suffix:
-                array: false
-                nullable: false
+            type: *float
             name: red
             readOnly: false
             inherit: false
           - memberType: attribute
-            type:
-              name: float
-              suffix:
-                array: false
-                nullable: false
+            type: *float
             name: green
             readOnly: false
             inherit: false
           - memberType: attribute
-            type:
-              name: float
-              suffix:
-                array: false
-                nullable: false
+            type: *float
             name: blue
             readOnly: false
             inherit: false
@@ -169,5 +122,24 @@ tests:
               array: true
               nullable: false
         name: ArrayOfLongs
+        attributes: []
+  - name: Using typedef
+    idl: |
+         interface B : A {
+           void f(ArrayOfLongs x);
+         };
+    expected:
+      - definition: interface
+        name: B
+        inherits: A
+        members:
+          - memberType: operation
+            name: f
+            returnType: null
+            arguments:
+              - name: x
+                type:
+                  name: ArrayOfLongs
+                  suffix: *emptySuffix
         attributes: []
 
