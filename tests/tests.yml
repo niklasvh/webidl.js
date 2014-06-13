@@ -10,6 +10,9 @@ presets:
   exception: &exception
     <<: *definition
     definition: exception
+  dictionary: &dictionary
+    <<: *definition
+    definition: dictionary
   typedef: &typedef
     definition: typedef
     attributes: []
@@ -17,6 +20,9 @@ presets:
     memberType: attribute
     readOnly: false
     inherit: false
+  dictionaryMember: &dictionaryMember
+    memberType: dictionaryMember
+    value: null
   operation: &operation
     memberType: operation
     returnType: null
@@ -248,3 +254,33 @@ tests:
             type: &long?
               name: long
               suffix: *nullable
+  - name: Dictionaries
+    idl: |
+         dictionary Options {
+           DOMString? option1;
+           DOMString? option2;
+           long? option3;
+         };
+
+         interface A {
+           void doTask(DOMString type, Options options);
+         };
+    expected:
+      - <<: *dictionary
+        name: Options
+        members:
+          - <<: *dictionaryMember
+            name: option1
+            type: *DOMString?
+          - <<: *dictionaryMember
+            name: option2
+            type: *DOMString?
+          - <<: *dictionaryMember
+            name: option3
+            type: *long?
+      - <<: *interface
+        name: A
+        members:
+          - <<: *operation
+            name: doTask
+            arguments: [{type: *DOMString, name: type}, {type: {name: Options, suffix: *emptySuffix}, name: options}]

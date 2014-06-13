@@ -27,6 +27,7 @@ other           [^\t\n\r 0-9A-Za-z]
 'attribute'     {return 'attribute'}
 'callback'      {return 'callback'}
 'const'         {return 'const'}
+'dictionary'    {return 'dictionary'}
 'DOMString'     {return 'DOMString'}
 'exception'     {return 'exception'}
 'getter'        {return 'getter'}
@@ -110,21 +111,27 @@ InterfaceMember
     | AttributeOrOperationOrIterator;
 
 Dictionary
-    : "dictionary" identifier Inheritance "{" DictionaryMembers "}" ";";
+    : "dictionary" identifier Inheritance "{" DictionaryMembers "}" ";"
+        {$$ = {definition: "dictionary", name: $2, inherits: $3, members: $5}};
 
 DictionaryMembers
     : ExtendedAttributeList DictionaryMember DictionaryMembers
-    | ε;
+    | DictionaryMember DictionaryMembers
+        {$$ = $2; $$.unshift($1)}
+    |
+        {$$ = []};
 
 DictionaryMember
-    : Type identifier Default ";";
+    : Type identifier Default ";"
+        {$$ = {type: $1, name: $2, value: $3, memberType: "dictionaryMember"}};
 
 PartialDictionary
     : "dictionary" identifier "{" DictionaryMembers "}" ";";
 
 Default
     : "=" DefaultValue
-    | ε;
+    |
+        {$$ = null};
 
 DefaultValue
     : ConstValue
