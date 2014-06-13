@@ -85,7 +85,7 @@ tests:
         inherits: null
         attributes: []
         members:
-          - {type: *DOMString, name: reason}
+          - {type: *DOMString, name: reason, memberType: field}
       - definition: interface
         name: Paint
         inherits: null
@@ -141,5 +141,30 @@ tests:
                 type:
                   name: ArrayOfLongs
                   suffix: *emptySuffix
+        attributes: []
+  - name: Exceptions(1)
+    idl: |
+          exception FrameworkException {
+
+            // Constant identifier: "ERR_NOT_FOUND"
+            const long ERR_NOT_FOUND = 1;
+
+            // Exception field identifier: "code"
+            long code;
+          };
+    expected:
+      - definition: exception
+        name: FrameworkException
+        inherits: null
+        members:
+          - memberType: const
+            type: &long
+              name: long
+              suffix: *emptySuffix
+            name: ERR_NOT_FOUND
+            value: 1
+          - memberType: field
+            type: *long
+            name: code
         attributes: []
 

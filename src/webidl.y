@@ -1,6 +1,6 @@
 %lex
 
-integer         "-"?([1-9][0-9]*|0[Xx][0-9A-Fa-f]+|0[0-7]*)
+integer         "-"?([1-9][0-9]+|0[Xx][0-9A-Fa-f]+|0[0-7]+)
 float           "-"?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)
 identifier      "_"?[A-Za-z][0-9A-Z_a-z]*
 string          "[^"]*"
@@ -22,7 +22,9 @@ other           [^\t\n\r 0-9A-Za-z]
 ']'             {return ']'}
 '('             {return '('}
 ')'             {return ')'}
+'='             {return '='}
 'attribute'     {return 'attribute'}
+'const'         {return 'const'}
 'DOMString'     {return 'DOMString'}
 'exception'     {return 'exception'}
 'float'         {return 'float'}
@@ -34,6 +36,7 @@ other           [^\t\n\r 0-9A-Za-z]
 'void'          {return 'void'}
 'unsigned'      {return 'unsigned'}
 {identifier}    {return 'identifier'}
+{integer}       {return 'integer'}
 <<EOF>>         {return 'EOF'}
 /lex
 
@@ -164,12 +167,14 @@ ImplementsStatement
     : identifier "implements" identifier ";";
 
 Const
-    : "const" ConstType identifier "=" ConstValue ";";
+    : "const" ConstType identifier "=" ConstValue ";"
+        {$$ = {memberType: $1, type: $2, name: $3, value: $5}};
 
 ConstValue
     : BooleanLiteral
     | FloatLiteral
     | integer
+        {$$ = parseFloat($1)}
     | "null";
 
 BooleanLiteral
@@ -333,7 +338,7 @@ ExceptionMember
 
 ExceptionField
     : Type identifier ";"
-        {$$ = {type: $1, name: $2}};
+        {$$ = {memberType: 'field', type: $1, name: $2}};
 
 ExtendedAttributeList
     : "[" ExtendedAttribute ExtendedAttributes "]"
@@ -469,7 +474,9 @@ NonAnyType
     | "RegExp" TypeSuffix
         {$$ = {name: $1, suffix: $2}};
 
-ConstType : PrimitiveType Null
+ConstType
+    : PrimitiveType Null
+        {$$ = {name: $1, suffix: $2}}
     | identifier Null;
 
 PrimitiveType
@@ -513,7 +520,9 @@ TypeSuffixStartingWithArray
 
 Null
     : "?"
-    | ε;
+        {$$ = {array: false, nullable: true}}
+    |
+        {$$ = {array: false, nullable: false}};
 
 ReturnType
     : Type
