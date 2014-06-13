@@ -25,6 +25,7 @@ other           [^\t\n\r 0-9A-Za-z]
 '='             {return '='}
 '?'             {return '?'}
 'attribute'     {return 'attribute'}
+'callback'      {return 'callback'}
 'const'         {return 'const'}
 'DOMString'     {return 'DOMString'}
 'exception'     {return 'exception'}
@@ -76,6 +77,7 @@ Definition
 
 CallbackOrInterface
     : "callback" CallbackRestOrInterface
+        {$$ = $2; $$.callback = true}
     | Interface;
 
 CallbackRestOrInterface
@@ -84,7 +86,7 @@ CallbackRestOrInterface
 
 Interface
     : "interface" identifier Inheritance "{" InterfaceMembers "}" ";"
-        {$$ = {definition: $1, name: $2, inherits: $3, members: $5};};
+        {$$ = {definition: $1, name: $2, inherits: $3, members: $5, callback: false};};
 
 Partial
     : "partial" PartialDefinition;

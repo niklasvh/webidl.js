@@ -6,6 +6,7 @@ presets:
   interface: &interface
     <<: *definition
     definition: interface
+    callback: false
   exception: &exception
     <<: *definition
     definition: exception
@@ -219,8 +220,31 @@ tests:
               suffix: *emptySuffix
           - <<: *attribute
             name: _value
-            type:
+            type: &DOMString?
               name: DOMString
               suffix: &nullable
-                nullable: true
                 array: false
+                nullable: true
+  - name: Callback interface
+    idl: |
+         callback interface Options {
+           attribute DOMString? option1;
+           attribute DOMString? option2;
+           attribute long? option3;
+         };
+    expected:
+      - <<: *interface
+        name: Options
+        callback: true
+        members:
+          - <<: *attribute
+            name: option1
+            type: *DOMString?
+          - <<: *attribute
+            name: option2
+            type: *DOMString?
+          - <<: *attribute
+            name: option3
+            type: &long?
+              name: long
+              suffix: *nullable
