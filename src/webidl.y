@@ -23,6 +23,7 @@ other           [^\t\n\r 0-9A-Za-z]
 '('             {return '('}
 ')'             {return ')'}
 '='             {return '='}
+'?'             {return '?'}
 'attribute'     {return 'attribute'}
 'const'         {return 'const'}
 'DOMString'     {return 'DOMString'}
@@ -517,12 +518,15 @@ TypeSuffix
     : "[" "]" TypeSuffix
         {$$ = $3; $$.array = true}
     | "?" TypeSuffixStartingWithArray
+        {$$ = $2; $$.nullable = true}
     |
         {$$ = {array: false, nullable: false}};
 
 TypeSuffixStartingWithArray
     : "[" "]" TypeSuffix
-    | ε;
+        {$$ = $3; $$.array = true;}
+    |
+        {$$ = {array: false, nullable: false}};
 
 Null
     : "?"

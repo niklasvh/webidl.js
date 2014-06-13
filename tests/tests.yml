@@ -198,4 +198,29 @@ tests:
           - memberType: field
             type: *long
             name: code
+  - name: Interfaces(4)
+    idl: |
+         interface TextField {
 
+           // Attribute identifier: "const"
+           attribute boolean _const;
+
+           // Attribute identifier: "value"
+           attribute DOMString? _value;
+         };
+    expected:
+      - <<: *interface
+        name: TextField
+        members:
+          - <<: *attribute
+            name: _const
+            type: &boolean
+              name: boolean
+              suffix: *emptySuffix
+          - <<: *attribute
+            name: _value
+            type:
+              name: DOMString
+              suffix: &nullable
+                nullable: true
+                array: false
