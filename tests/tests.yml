@@ -13,7 +13,7 @@ tests:
            void drawText(float x, float y, DOMString text);
          };
     expected:
-      - type: interface
+      - definition: interface
         name: GraphicalWindow
         inherits: null
         attributes:
@@ -21,39 +21,79 @@ tests:
         members:
           - memberType: attribute
             name: width
-            type: unsigned long
+            type:
+              name: unsigned long
+              suffix:
+                array: false
+                nullable: false
             readOnly: true
             inherit: false
           - memberType: attribute
             name: height
-            type: unsigned long
+            type:
+              name: unsigned long
+              suffix:
+                array: false
+                nullable: false
             readOnly: true
             inherit: false
           - memberType: attribute
             name: currentPaint
-            type: Paint
+            type:
+              name: Paint
+              suffix:
+                array: false
+                nullable: false
             readOnly: false
             inherit: false
           - memberType: operation
             name: drawRectangle
             arguments:
-              - type: float
+              - type:
+                  name: float
+                  suffix:
+                    array: false
+                    nullable: false
                 name: x
-              - type: float
+              - type:
+                  name: float
+                  suffix:
+                    array: false
+                    nullable: false
                 name: y
-              - type: float
+              - type:
+                  name: float
+                  suffix:
+                    array: false
+                    nullable: false
                 name: width
-              - type: float
+              - type:
+                  name: float
+                  suffix:
+                    array: false
+                    nullable: false
                 name: height
             returnType: null
           - memberType: operation
             name: drawText
             arguments:
-              - type: float
+              - type:
+                  name: float
+                  suffix:
+                    array: false
+                    nullable: false
                 name: x
-              - type: float
+              - type:
+                  name: float
+                  suffix:
+                    array: false
+                    nullable: false
                 name: y
-              - type: DOMString
+              - type:
+                  name: DOMString
+                  suffix:
+                    array: false
+                    nullable: false
                 name: text
             returnType: null
   - name: Interfaces(2)
@@ -70,36 +110,64 @@ tests:
            attribute float blue;
          };
     expected:
-      - type: exception
+      - definition: exception
         name: GraphicsException
         inherits: null
         attributes: []
         members:
-          - type: DOMString
+          - type:
+              name: DOMString
+              suffix:
+                array: false
+                nullable: false
             name: reason
-      - type: interface
+      - definition: interface
         name: Paint
         inherits: null
         attributes: []
         members: []
-      - type: interface
+      - definition: interface
         name: SolidColor
         inherits: Paint
         attributes: []
         members:
           - memberType: attribute
-            type: float
+            type:
+              name: float
+              suffix:
+                array: false
+                nullable: false
             name: red
             readOnly: false
             inherit: false
           - memberType: attribute
-            type: float
+            type:
+              name: float
+              suffix:
+                array: false
+                nullable: false
             name: green
             readOnly: false
             inherit: false
           - memberType: attribute
-            type: float
+            type:
+              name: float
+              suffix:
+                array: false
+                nullable: false
             name: blue
             readOnly: false
             inherit: false
+  - name: typedef
+    idl: |
+         typedef long[] ArrayOfLongs;
+    expected:
+      - definition: typedef
+        type:
+            name: long
+            suffix:
+              array: true
+              nullable: false
+        name: ArrayOfLongs
+        attributes: []
 

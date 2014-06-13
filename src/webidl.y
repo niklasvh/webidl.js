@@ -30,6 +30,7 @@ other           [^\t\n\r 0-9A-Za-z]
 'interface'     {return 'interface'}
 'long'          {return 'long'}
 'readonly'      {return 'readonly'}
+'typedef'       {return 'typedef'}
 'void'          {return 'void'}
 'unsigned'      {return 'unsigned'}
 {identifier}    {return 'identifier'}
@@ -77,7 +78,7 @@ CallbackRestOrInterface
 
 Interface
     : "interface" identifier Inheritance "{" InterfaceMembers "}" ";"
-        {$$ = {type: $1, name: $2, inherits: $3, members: $5};};
+        {$$ = {definition: $1, name: $2, inherits: $3, members: $5};};
 
 Partial
     : "partial" PartialDefinition;
@@ -123,7 +124,7 @@ DefaultValue
 
 Exception
     : "exception" identifier Inheritance "{" ExceptionMembers "}" ";"
-        {$$ = {type: $1, name: $2, inherits: $3, members: $5};};
+        {$$ = {definition: $1, name: $2, inherits: $3, members: $5};};
 
 ExceptionMembers
     : ExtendedAttributeList ExceptionMember ExceptionMembers
@@ -156,7 +157,8 @@ CallbackRest
     : identifier "=" ReturnType "(" ArgumentList ")" ";";
 
 Typedef
-    : "typedef" Type identifier ";";
+    : "typedef" Type identifier ";"
+        {$$ = {definition: $1, type: $2, name: $3}};
 
 ImplementsStatement
     : identifier "implements" identifier ";";
@@ -451,13 +453,21 @@ UnionMemberTypes
 
 NonAnyType
     : PrimitiveType TypeSuffix
+        {$$ = {name: $1, suffix: $2}}
     | "ByteString" TypeSuffix
+        {$$ = {name: $1, suffix: $2}}
     | "DOMString" TypeSuffix
+        {$$ = {name: $1, suffix: $2}}
     | identifier TypeSuffix
+        {$$ = {name: $1, suffix: $2}}
     | "sequence" "<" Type ">" Null
+        {$$ = {name: $1, suffix: $2}}
     | "object" TypeSuffix
+        {$$ = {name: $1, suffix: $2}}
     | "Date" TypeSuffix
-    | "RegExp" TypeSuffix;
+        {$$ = {name: $1, suffix: $2}}
+    | "RegExp" TypeSuffix
+        {$$ = {name: $1, suffix: $2}};
 
 ConstType : PrimitiveType Null
     | identifier Null;
@@ -492,8 +502,10 @@ OptionalLong
 
 TypeSuffix
     : "[" "]" TypeSuffix
+        {$$ = $3; $$.array = true}
     | "?" TypeSuffixStartingWithArray
-    | ε;
+    |
+        {$$ = {array: false, nullable: false}};
 
 TypeSuffixStartingWithArray
     : "[" "]" TypeSuffix
