@@ -121,6 +121,7 @@ InterfaceMembers
     : InterfaceMember InterfaceMembers
         {$$ = $2; $$.unshift($1)}
     | ExtendedAttributeList InterfaceMember InterfaceMembers
+        {$$ = $3; $$.unshift($2); $2.attributes = $1;}
     |
         {$$ = []};
 
@@ -361,13 +362,14 @@ Arguments
 
 Argument
     : ExtendedAttributeList OptionalOrRequiredArgument
+        {$$ = $2; $$.attributes = $1}
     | OptionalOrRequiredArgument;
 
 OptionalOrRequiredArgument
     : "optional" Type ArgumentName Default
-        {$$ = {type: $2, name: $3, ellipsis: false, optional: true, default: $4}}
+        {$$ = {type: $2, name: $3, ellipsis: false, optional: true, default: $4, attributes: []}}
     | Type Ellipsis ArgumentName
-        {$$ = {type: $1, name: $3, optional: false, ellipsis: $2}};
+        {$$ = {type: $1, name: $3, optional: false, ellipsis: $2, attributes: []}};
 
 ArgumentName
     : ArgumentNameKeyword
@@ -403,11 +405,13 @@ ExtendedAttribute
     : "(" ExtendedAttributeInner ")" ExtendedAttributeRest
     | "[" ExtendedAttributeInner "]" ExtendedAttributeRest
     | "{" ExtendedAttributeInner "}" ExtendedAttributeRest
-    | Other ExtendedAttributeRest;
+    | Other ExtendedAttributeRest
+        {$$ = $1 + $2};
 
 ExtendedAttributeRest
     : ExtendedAttribute
-    | ε;
+    |
+        {$$ = ""};
 
 ExtendedAttributeInner
     : "(" ExtendedAttributeInner ")" ExtendedAttributeInner

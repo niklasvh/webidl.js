@@ -43,6 +43,7 @@ presets:
   argument: &argument
     optional: false
     ellipsis: false
+    attributes: []
   type: &type
     array: false
     nullable: false
@@ -514,3 +515,47 @@ tests:
           - <<: *operation
             name: append
             arguments: [{<<: *argument, name: nodes, ellipsis: true, type: [<<: *Node, <<: *DOMString]}]
+  - name: Argument attributes
+    idl: |
+         interface DOMImplementation {
+           [NewObject] DocumentType createDocumentType(DOMString qualifiedName, DOMString publicId, DOMString systemId);
+           [NewObject] XMLDocument createDocument(DOMString? namespace, [TreatNullAs=EmptyString] DOMString qualifiedName, optional DocumentType? doctype);
+           [NewObject] Document createHTMLDocument(optional DOMString title);
+
+           boolean hasFeature(DOMString feature, [TreatNullAs=EmptyString] DOMString version);
+         };
+    expected:
+      - <<: *interface
+        name: DOMImplementation
+        members:
+          - <<: *operation
+            name: createDocumentType
+            attributes: [NewObject]
+            returnType:
+                <<: *type
+                name: DocumentType
+            arguments: [{<<: *argument, name: qualifiedName, type: *DOMString}, {<<: *argument, name: publicId, type: *DOMString}, {<<: *argument, name: systemId, type: *DOMString}]
+          - <<: *operation
+            name: createDocument
+            attributes: [NewObject]
+            returnType:
+                <<: *type
+                name: XMLDocument
+            arguments:
+              - {<<: *argument, name: namespace, type: {<<: *DOMString, nullable: true}}
+              - {<<: *argument, name: qualifiedName, attributes: [TreatNullAs=EmptyString], type: *DOMString}
+              - {<<: *argument, name: doctype, optional: true, default: null, type: {<<: *type, name: DocumentType, nullable: true}}
+          - <<: *operation
+            name: createHTMLDocument
+            attributes: [NewObject]
+            returnType:
+                <<: *type
+                name: Document
+            arguments:
+              - {<<: *argument, name: title, optional: true, default: null, type: *DOMString}
+          - <<: *operation
+            name: hasFeature
+            returnType: *boolean
+            arguments:
+              - {<<: *argument, name: feature, type: *DOMString}
+              - {<<: *argument, name: version, type: *DOMString, attributes: [TreatNullAs=EmptyString]}
