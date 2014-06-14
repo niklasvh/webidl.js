@@ -1,6 +1,6 @@
 %lex
 
-integer         "-"?([1-9][0-9]+|0[Xx][0-9A-Fa-f]+|0[0-7]+)
+integer         "-"?([1-9][0-9]*|"0"[Xx][0-9A-Fa-f]+|"0"[0-7]*)
 float           "-"?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)
 identifier      "_"?[A-Za-z][0-9A-Z_a-z]*
 string          "[^"]*"
@@ -25,6 +25,7 @@ other           [^\t\n\r 0-9A-Za-z]
 '='             {return '='}
 '?'             {return '?'}
 '-'             {return '-'}
+'...'           {return '...'}
 'attribute'     {return 'attribute'}
 'boolean'       {return 'boolean'}
 'byte'          {return 'byte'}
@@ -37,6 +38,7 @@ other           [^\t\n\r 0-9A-Za-z]
 'getter'        {return 'getter'}
 'false'         {return 'false'}
 'float'         {return 'float'}
+'implements'    {return 'implements'}
 'inherit'       {return 'inherit'}
 'Infinity'      {return 'Infinity'}
 'interface'     {return 'interface'}
@@ -45,6 +47,8 @@ other           [^\t\n\r 0-9A-Za-z]
 'null'          {return 'null'}
 'object'        {return 'object'}
 'octet'         {return 'octet'}
+'optional'      {return 'optional'}
+'or'            {return 'or'}
 'readonly'      {return 'readonly'}
 'short'         {return 'short'}
 'stringifier'   {return 'stringifier'}
@@ -190,7 +194,8 @@ Typedef
         {$$ = {definition: $1, type: $2, name: $3}};
 
 ImplementsStatement
-    : identifier "implements" identifier ";";
+    : identifier "implements" identifier ";"
+        {$$ = {definition: $2, name: $1, implements: $3}};
 
 Const
     : "const" ConstType identifier "=" ConstValue ";"

@@ -12,6 +12,9 @@ presets:
   exception: &exception
     <<: *definition
     definition: exception
+  implements: &implements
+    definition: implements
+    attributes: []
   dictionary: &dictionary
     <<: *definition
     definition: dictionary
@@ -474,3 +477,10 @@ tests:
             name: str
             type: *DOMString
             stringifier: true
+  - name: Implements
+    idl: |
+         Document implements ParentNode;
+    expected:
+      - <<: *implements
+        name: Document
+        implements: ParentNode
