@@ -33,5 +33,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.loadNpmTasks('grunt-jison');
-    grunt.registerTask('default', ['jison', 'yaml', 'nodeunit']);
+    grunt.registerTask('default', ['jison', 'nodeunit']);
 };
