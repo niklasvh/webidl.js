@@ -50,6 +50,18 @@ presets:
   nullable: &nullable
     <<: *type
     nullable: true
+  attrib: &attrib
+    name: null
+    arguments: []
+  NewObject: &NewObject
+    <<: *attrib
+    name: NewObject
+  TreatNullAs: &TreatNullAs
+    <<: *attrib
+    name: TreatNullAs=EmptyString
+  Constructor: &Constructor
+    <<: *attrib
+    name: Constructor
 
 tests:
   - name: Interfaces(1)
@@ -68,8 +80,7 @@ tests:
     expected:
       - <<: *interface
         name: GraphicalWindow
-        attributes:
-          - Constructor
+        attributes: [*Constructor]
         members:
           - <<: *attribute
             name: width
@@ -530,24 +541,24 @@ tests:
         members:
           - <<: *operation
             name: createDocumentType
-            attributes: [NewObject]
+            attributes: [*NewObject]
             returnType:
                 <<: *type
                 name: DocumentType
             arguments: [{<<: *argument, name: qualifiedName, type: *DOMString}, {<<: *argument, name: publicId, type: *DOMString}, {<<: *argument, name: systemId, type: *DOMString}]
           - <<: *operation
             name: createDocument
-            attributes: [NewObject]
+            attributes: [*NewObject]
             returnType:
                 <<: *type
                 name: XMLDocument
             arguments:
               - {<<: *argument, name: namespace, type: {<<: *DOMString, nullable: true}}
-              - {<<: *argument, name: qualifiedName, attributes: [TreatNullAs=EmptyString], type: *DOMString}
+              - {<<: *argument, name: qualifiedName, attributes: [*TreatNullAs], type: *DOMString}
               - {<<: *argument, name: doctype, optional: true, default: null, type: {<<: *type, name: DocumentType, nullable: true}}
           - <<: *operation
             name: createHTMLDocument
-            attributes: [NewObject]
+            attributes: [*NewObject]
             returnType:
                 <<: *type
                 name: Document
@@ -558,4 +569,24 @@ tests:
             returnType: *boolean
             arguments:
               - {<<: *argument, name: feature, type: *DOMString}
-              - {<<: *argument, name: version, type: *DOMString, attributes: [TreatNullAs=EmptyString]}
+              - {<<: *argument, name: version, type: *DOMString, attributes: [*TreatNullAs]}
+  - name: Constructor
+    idl: |
+         [Constructor(DOMString type, optional EventInit eventInitDict)]
+         interface node {
+           const unsigned long SHOW_ALL = 0xFFFFFFFF;
+           const unsigned long SHOW_ELEMENT = 0x1;
+         };
+    expected:
+      - <<: *interface
+        name: node
+        attributes: [{<<: *Constructor, arguments: [{<<: *argument, type: *DOMString, name: type}, {<<: *argument, optional: true, default: null, type: {<<: *type, name: EventInit}, name: eventInitDict}]}]
+        members:
+          - <<: *const
+            name: SHOW_ALL
+            type: *unsignedLong
+            value: 0xFFFFFFFF
+          - <<: *const
+            name: SHOW_ELEMENT
+            type: *unsignedLong
+            value: 0x1

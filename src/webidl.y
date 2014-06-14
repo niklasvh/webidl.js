@@ -206,7 +206,7 @@ ConstValue
     : BooleanLiteral
     | FloatLiteral
     | integer
-        {$$ = parseFloat($1)}
+        {$$ = parseInt($1);}
     | "null"
         {$$ = null};
 
@@ -402,23 +402,26 @@ ExtendedAttributes
          {$$ = []};
 
 ExtendedAttribute
-    : "(" ExtendedAttributeInner ")" ExtendedAttributeRest
+    : "(" ArgumentList ")" ExtendedAttributeRest
+        {$$ = $4; $$.arguments = $2;}
     | "[" ExtendedAttributeInner "]" ExtendedAttributeRest
     | "{" ExtendedAttributeInner "}" ExtendedAttributeRest
     | Other ExtendedAttributeRest
-        {$$ = $1 + $2};
+        {$$ = $2; $2.name = $1 + $2.name;};
 
 ExtendedAttributeRest
     : ExtendedAttribute
     |
-        {$$ = ""};
+        {$$ = {name: "", arguments: []}};
 
 ExtendedAttributeInner
     : "(" ExtendedAttributeInner ")" ExtendedAttributeInner
     | "[" ExtendedAttributeInner "]" ExtendedAttributeInner
     | "{" ExtendedAttributeInner "}" ExtendedAttributeInner
     | OtherOrComma ExtendedAttributeInner
-    | ε;
+        {$$ = $2; $$.unshift($1)}
+    |
+        {$$ = []};
 
 Other
     : integer
