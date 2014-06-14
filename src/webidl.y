@@ -47,6 +47,7 @@ other           [^\t\n\r 0-9A-Za-z]
 'octet'         {return 'octet'}
 'readonly'      {return 'readonly'}
 'short'         {return 'short'}
+'stringifier'   {return 'stringifier'}
 'true'          {return 'true'}
 'typedef'       {return 'typedef'}
 'void'          {return 'void'}
@@ -229,7 +230,8 @@ AttributeOrOperationOrIterator
 Serializer
     : "serializer" SerializerRest;
 
-SerializerRest : OperationRest
+SerializerRest
+    : OperationRest
     | "=" SerializationPattern
     | ε;
 
@@ -254,7 +256,8 @@ Identifiers
     | ε;
 
 Stringifier
-    : "stringifier" StringifierRest;
+    : "stringifier" StringifierRest
+        {$$ = $2; $$.stringifier = true;};
 
 StringifierRest
     : AttributeRest
@@ -272,13 +275,13 @@ Attribute
     : Inherit AttributeRest
         {$$ = $2; $$.inherit = $1}
     | AttributeRest
-        {$$ = $1; $$.inherit = false};
+        {$$ = $1;};
 
 AttributeRest
     : ReadOnly "attribute" Type identifier ";"
-        {$$ = {readOnly: $1, memberType: $2, type: $3, name: $4}}
+        {$$ = {readOnly: $1, memberType: $2, type: $3, name: $4, stringifier: false, inherit: false}}
     | "attribute" Type identifier ";"
-        {$$ = {readOnly: false, memberType: $1, type: $2, name: $3}};
+        {$$ = {readOnly: false, memberType: $1, type: $2, name: $3, stringifier: false, inherit: false}};
 
 Inherit
     : "inherit"
@@ -332,7 +335,7 @@ OptionalIteratorInterface
 
 OperationRest
     : OptionalIdentifier "(" ArgumentList ")" ";"
-        {$$ = {memberType: 'operation', name: $1, arguments: $3, specials: []}};
+        {$$ = {memberType: 'operation', name: $1, arguments: $3, specials: [], stringifier: false}};
 
 OptionalIdentifier
     : identifier

@@ -24,6 +24,7 @@ presets:
     type: null
     name: null
     inherit: false
+    stringifier: false
   dictionaryMember: &dictionaryMember
     memberType: dictionaryMember
     value: null
@@ -35,6 +36,7 @@ presets:
     returnType: null
     arguments: []
     specials: []
+    stringifier: false
 
 tests:
   - name: Interfaces(1)
@@ -459,3 +461,16 @@ tests:
               name: Something
               suffix: *emptySuffix
             value: null
+  - name: Interface members
+    idl: |
+         interface members {
+           stringifier attribute DOMString str;
+         };
+    expected:
+      - <<: *interface
+        name: members
+        members:
+          - <<: *attribute
+            name: str
+            type: *DOMString
+            stringifier: true
