@@ -24,23 +24,36 @@ other           [^\t\n\r 0-9A-Za-z]
 ')'             {return ')'}
 '='             {return '='}
 '?'             {return '?'}
+'-'             {return '-'}
 'attribute'     {return 'attribute'}
+'boolean'       {return 'boolean'}
+'byte'          {return 'byte'}
 'callback'      {return 'callback'}
 'const'         {return 'const'}
 'dictionary'    {return 'dictionary'}
+'double'        {return 'double'}
 'DOMString'     {return 'DOMString'}
 'exception'     {return 'exception'}
 'getter'        {return 'getter'}
+'false'         {return 'false'}
 'float'         {return 'float'}
 'inherit'       {return 'inherit'}
+'Infinity'      {return 'Infinity'}
 'interface'     {return 'interface'}
 'long'          {return 'long'}
+'NaN'           {return 'NaN'}
+'null'          {return 'null'}
 'object'        {return 'object'}
+'octet'         {return 'octet'}
 'readonly'      {return 'readonly'}
+'short'         {return 'short'}
+'true'          {return 'true'}
 'typedef'       {return 'typedef'}
 'void'          {return 'void'}
+'unrestricted'  {return 'unrestricted'}
 'unsigned'      {return 'unsigned'}
 {identifier}    {return 'identifier'}
+{float}         {return 'float'}
 {integer}       {return 'integer'}
 <<EOF>>         {return 'EOF'}
 /lex
@@ -187,17 +200,24 @@ ConstValue
     | FloatLiteral
     | integer
         {$$ = parseFloat($1)}
-    | "null";
+    | "null"
+        {$$ = null};
 
 BooleanLiteral
     : "true"
-    | "false";
+        {$$ = true}
+    | "false"
+        {$$ = false};
 
 FloatLiteral
     : float
-    | "-Infinity"
+        {$$ = parseFloat($1)}
+    | "-" "Infinity"
+        {$$ = -Infinity}
     | "Infinity"
-    | "NaN";
+        {$$ = Infinity}
+    | "NaN"
+        {$$ = NaN};
 
 AttributeOrOperationOrIterator
     : Serializer
@@ -493,7 +513,8 @@ NonAnyType
 ConstType
     : PrimitiveType Null
         {$$ = {name: $1, suffix: $2}}
-    | identifier Null;
+    | identifier Null
+         {$$ = {name: $1, suffix: $2}};
 
 PrimitiveType
     : UnsignedIntegerType
@@ -504,6 +525,7 @@ PrimitiveType
 
 UnrestrictedFloatType
     : "unrestricted" FloatType
+        {$$ = $1 + " " + $2}
     | FloatType;
 
 FloatType

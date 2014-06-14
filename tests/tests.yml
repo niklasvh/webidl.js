@@ -27,6 +27,9 @@ presets:
   dictionaryMember: &dictionaryMember
     memberType: dictionaryMember
     value: null
+  const: &const
+    memberType: const
+    value: null
   operation: &operation
     memberType: operation
     returnType: null
@@ -362,3 +365,97 @@ tests:
           - <<: *operation
             name: handleEvent
             arguments: [{name: event, type: {name: Event, suffix: *emptySuffix}}]
+  - name: Interface constants
+    idl: |
+         // [26][27][28][29][63][64][65][66][67][68]
+         interface constants {
+           const long a = 1;
+           const unsigned long b = 2;
+           const short c = 3;
+           const unsigned short d = 4;
+           const float e = 5.0;
+           const unrestricted float g = 5.5;
+           const double h = -Infinity;
+           const unrestricted double i = Infinity;
+           const boolean j = true;
+           const boolean k = false;
+           const byte l = 5;
+           const octet m = 6;
+           const Something n = null;
+         };
+    expected:
+      - <<: *interface
+        name: constants
+        members:
+          - <<: *const
+            name: a
+            type: *long
+            value: 1
+          - <<: *const
+            name: b
+            type: *unsignedLong
+            value: 2
+          - <<: *const
+            name: c
+            type: &short
+              name: short
+              suffix: *emptySuffix
+            value: 3
+          - <<: *const
+            name: d
+            type: &unsignedShort
+              name: unsigned short
+              suffix: *emptySuffix
+            value: 4
+          - <<: *const
+            name: e
+            type: &float
+              name: float
+              suffix: *emptySuffix
+            value: 5
+          - <<: *const
+            name: g
+            type: &unrestrictedFloat
+              name: unrestricted float
+              suffix: *emptySuffix
+            value: 5.5
+          - <<: *const
+            name: h
+            type: &double
+              name: double
+              suffix: *emptySuffix
+            value: -.inf
+          - <<: *const
+            name: i
+            type: &unrestrictedDouble
+              name: unrestricted double
+              suffix: *emptySuffix
+            value: .inf
+          - <<: *const
+            name: j
+            type: &boolean
+              name: boolean
+              suffix: *emptySuffix
+            value: true
+          - <<: *const
+            name: k
+            type: *boolean
+            value: false
+          - <<: *const
+            name: l
+            type: &byte
+              name: byte
+              suffix: *emptySuffix
+            value: 5
+          - <<: *const
+            name: m
+            type: &octet
+              name: octet
+              suffix: *emptySuffix
+            value: 6
+          - <<: *const
+            name: n
+            type:
+              name: Something
+              suffix: *emptySuffix
+            value: null

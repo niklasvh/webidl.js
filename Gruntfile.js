@@ -2,13 +2,6 @@
 
 module.exports = function(grunt) {
     grunt.initConfig({
-        yaml: {
-            tests: {
-                files: [
-                    {expand: true, cwd: 'tests/', src: ['**/*.yml'], dest: 'tests/build/'}
-                ]
-            }
-        },
         jison: {
             webidl : {
                 files: { 'lib/webidl.js': 'src/webidl.y' }
@@ -18,13 +11,6 @@ module.exports = function(grunt) {
             files: ['tests/test-runner.js']
         },
         watch: {
-            yaml: {
-                files: ['tests/**/*.yml'],
-                tasks: ['yaml'],
-                options: {
-                    interrupt: true
-                }
-            },
             jison: {
                 files: ['src/webidl.y'],
                 tasks: ['jison', 'nodeunit'],
@@ -33,7 +19,7 @@ module.exports = function(grunt) {
                 }
             },
             tests: {
-                files: ['tests/build/**/*.json', 'tests/test-runner.js'],
+                files: ['tests/*'],
                 tasks: ['nodeunit'],
                 options: {
                     interrupt: true
