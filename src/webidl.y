@@ -3,7 +3,7 @@
 integer         "-"?([1-9][0-9]*|"0"[Xx][0-9A-Fa-f]+|"0"[0-7]*)
 float           "-"?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+)
 identifier      "_"?[A-Za-z][0-9A-Z_a-z]*
-string          "[^"]*"
+string          \"[^"]*\"
 whitespace      [\t\n\r ]+
 comment         \/\/.*|\/\*(.|\n)*?\*\/
 other           [^\t\n\r 0-9A-Za-z]
@@ -60,6 +60,7 @@ other           [^\t\n\r 0-9A-Za-z]
 {identifier}    {return 'identifier'}
 {float}         {return 'float'}
 {integer}       {return 'integer'}
+{string}        {return 'string'}
 <<EOF>>         {return 'EOF'}
 /lex
 
@@ -149,12 +150,14 @@ PartialDictionary
 
 Default
     : "=" DefaultValue
+        {$$ = $2}
     |
-        {$$ = null};
+        {$$ = undefined};
 
 DefaultValue
     : ConstValue
-    | string;
+    | string
+        {$$ = $1.substr(1, $1.length - 2)};
 
 Exception
     : "exception" identifier Inheritance "{" ExceptionMembers "}" ";"
@@ -268,7 +271,8 @@ Stringifier
 StringifierRest
     : AttributeRest
     | ReturnType OperationRest
-    | ";";
+    | ";"
+        {$$ = {memberType:"stringifier"}};
 
 StaticMember
     : "static" StaticMemberRest;

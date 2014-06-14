@@ -30,7 +30,7 @@ presets:
     stringifier: false
   dictionaryMember: &dictionaryMember
     memberType: dictionaryMember
-    value: null
+    value: !!js/undefined ~
   const: &const
     memberType: const
     value: null
@@ -555,7 +555,7 @@ tests:
             arguments:
               - {<<: *argument, name: namespace, type: {<<: *DOMString, nullable: true}}
               - {<<: *argument, name: qualifiedName, attributes: [*TreatNullAs], type: *DOMString}
-              - {<<: *argument, name: doctype, optional: true, default: null, type: {<<: *type, name: DocumentType, nullable: true}}
+              - {<<: *argument, name: doctype, optional: true, default: !!js/undefined ~, type: {<<: *type, name: DocumentType, nullable: true}}
           - <<: *operation
             name: createHTMLDocument
             attributes: [*NewObject]
@@ -563,7 +563,7 @@ tests:
                 <<: *type
                 name: Document
             arguments:
-              - {<<: *argument, name: title, optional: true, default: null, type: *DOMString}
+              - {<<: *argument, name: title, optional: true, default: !!js/undefined ~, type: *DOMString}
           - <<: *operation
             name: hasFeature
             returnType: *boolean
@@ -572,15 +572,16 @@ tests:
               - {<<: *argument, name: version, type: *DOMString, attributes: [*TreatNullAs]}
   - name: Constructor
     idl: |
-         [Constructor(DOMString type, optional EventInit eventInitDict)]
+         [Constructor(DOMString type, optional EventInit eventInitDict = "abc")]
          interface node {
            const unsigned long SHOW_ALL = 0xFFFFFFFF;
            const unsigned long SHOW_ELEMENT = 0x1;
+           stringifier;
          };
     expected:
       - <<: *interface
         name: node
-        attributes: [{<<: *Constructor, arguments: [{<<: *argument, type: *DOMString, name: type}, {<<: *argument, optional: true, default: null, type: {<<: *type, name: EventInit}, name: eventInitDict}]}]
+        attributes: [{<<: *Constructor, arguments: [{<<: *argument, type: *DOMString, name: type}, {<<: *argument, optional: true, default: "abc", type: {<<: *type, name: EventInit}, name: eventInitDict}]}]
         members:
           - <<: *const
             name: SHOW_ALL
@@ -590,3 +591,5 @@ tests:
             name: SHOW_ELEMENT
             type: *unsignedLong
             value: 0x1
+          - memberType: stringifier
+            stringifier: true
