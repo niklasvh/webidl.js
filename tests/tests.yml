@@ -40,6 +40,15 @@ presets:
     arguments: []
     specials: []
     stringifier: false
+  argument: &argument
+    optional: false
+    ellipsis: false
+  type: &type
+    array: false
+    nullable: false
+  nullable: &nullable
+    <<: *type
+    nullable: true
 
 tests:
   - name: Interfaces(1)
@@ -64,10 +73,8 @@ tests:
           - <<: *attribute
             name: width
             type: &unsignedLong
+              <<: *type
               name: unsigned long
-              suffix: &emptySuffix
-                array: false
-                nullable: false
             readOnly: true
           - <<: *attribute
             name: height
@@ -76,31 +83,38 @@ tests:
           - <<: *attribute
             name: currentPaint
             type:
+              <<: *type
               name: Paint
-              suffix: *emptySuffix
           - <<: *operation
             name: drawRectangle
             arguments:
-              - type: &float
+              - <<: *argument
+                type: &float
+                  <<: *type
                   name: float
-                  suffix: *emptySuffix
                 name: x
-              - type: *float
+              - <<: *argument
+                type: *float
                 name: y
-              - type: *float
+              - <<: *argument
+                type: *float
                 name: width
-              - type: *float
+              - <<: *argument
+                type: *float
                 name: height
           - <<: *operation
             name: drawText
             arguments:
-              - type: *float
+              - <<: *argument
+                type: *float
                 name: x
-              - type: *float
+              - <<: *argument
+                type: *float
                 name: y
-              - type: &DOMString
+              - <<: *argument
+                type: &DOMString
+                  <<: *type
                   name: DOMString
-                  suffix: *emptySuffix
                 name: text
   - name: Interfaces(2)
     idl: |
@@ -155,18 +169,18 @@ tests:
         members:
           - <<: *operation
             name: createObject
-            arguments: [{type: *DOMString, name: _interface}]
+            arguments: [{<<: *argument, type: *DOMString, name: _interface}]
             returnType: &object
+              <<: *type
               name: object
-              suffix: *emptySuffix
           - <<: *operation
             name: createObjectArray
-            arguments: [{type: *DOMString, name: interface}]
-            returnType: {name: object, suffix: {array: true, nullable: false}}
+            arguments: [{<<: *argument, type: *DOMString, name: interface}]
+            returnType: {<<: *type, name: object, array: true}
           - <<: *operation
             name: null
             specials: [getter]
-            arguments: [{type: *DOMString, name: keyName}]
+            arguments: [{<<: *argument, type: *DOMString, name: keyName}]
             returnType: *DOMString
   - name: typedef
     idl: |
@@ -174,8 +188,9 @@ tests:
     expected:
       - <<: *typedef
         type:
+            <<: *type
             name: long
-            suffix: {array: true, nullable: false}
+            array: true
         name: ArrayOfLongs
   - name: Using typedef
     idl: |
@@ -190,10 +205,11 @@ tests:
           - <<: *operation
             name: f
             arguments:
-              - name: x
+              - <<: *argument
+                name: x
                 type:
+                  <<: *type
                   name: ArrayOfLongs
-                  suffix: *emptySuffix
   - name: Exceptions(1)
     idl: |
           exception FrameworkException {
@@ -210,8 +226,8 @@ tests:
         members:
           - memberType: const
             type: &long
+              <<: *type
               name: long
-              suffix: *emptySuffix
             name: ERR_NOT_FOUND
             value: 1
           - memberType: field
@@ -234,15 +250,13 @@ tests:
           - <<: *attribute
             name: _const
             type: &boolean
+              <<: *type
               name: boolean
-              suffix: *emptySuffix
           - <<: *attribute
             name: _value
             type: &DOMString?
+              <<: *nullable
               name: DOMString
-              suffix: &nullable
-                array: false
-                nullable: true
   - name: Callback interface
     idl: |
          callback interface Options {
@@ -264,8 +278,8 @@ tests:
           - <<: *attribute
             name: option3
             type: &long?
+              <<: *nullable
               name: long
-              suffix: *nullable
   - name: Dictionaries
     idl: |
          dictionary Options {
@@ -295,7 +309,7 @@ tests:
         members:
           - <<: *operation
             name: doTask
-            arguments: [{type: *DOMString, name: type}, {type: {name: Options, suffix: *emptySuffix}, name: options}]
+            arguments: [{<<: *argument, type: *DOMString, name: type}, {<<: *argument, type: {<<: *type, name: Options}, name: options}]
   - name: Referential interfaces
     idl: |
          interface Animal {
@@ -322,14 +336,14 @@ tests:
         members:
           - <<: *attribute
             name: pet
-            type: {name: Dog, suffix: *nullable}
+            type: {<<: *nullable, name: Dog}
       - <<: *interface
         name: Dog
         inherits: Animal
         members:
           - <<: *attribute
             name: owner
-            type: {name: Human, suffix: *nullable}
+            type: {<<: *nullable, name: Human}
   - name: DOM Interfaces
     idl: |
          interface Node {
@@ -352,24 +366,24 @@ tests:
             readOnly: true
           - <<: *attribute
             name: parentNode
-            type: {name: Node, suffix: *nullable}
+            type: {<<: *nullable, name: Node}
             readOnly: true
           - <<: *operation
             name: appendChild
             returnType: &Node
+              <<: *type
               name: Node
-              suffix: *emptySuffix
-            arguments: [{name: newChild, type: *Node}]
+            arguments: [{<<: *argument, name: newChild, type: *Node}]
           - <<: *operation
             name: addEventListener
-            arguments: [{name: type, type: *DOMString}, {name: listener, type: {name: EventListener, suffix: *emptySuffix}}]
+            arguments: [{<<: *argument, name: type, type: *DOMString}, {<<: *argument, name: listener, type: {<<: *type, name: EventListener}}]
       - <<: *interface
         name: EventListener
         callback: true
         members:
           - <<: *operation
             name: handleEvent
-            arguments: [{name: event, type: {name: Event, suffix: *emptySuffix}}]
+            arguments: [{<<: *argument, name: event, type: {<<: *type, name: Event}}]
   - name: Interface constants
     idl: |
          // [26][27][28][29][63][64][65][66][67][68]
@@ -403,44 +417,44 @@ tests:
           - <<: *const
             name: c
             type: &short
+              <<: *type
               name: short
-              suffix: *emptySuffix
             value: 3
           - <<: *const
             name: d
             type: &unsignedShort
+              <<: *type
               name: unsigned short
-              suffix: *emptySuffix
             value: 4
           - <<: *const
             name: e
             type: &float
+              <<: *type
               name: float
-              suffix: *emptySuffix
             value: 5
           - <<: *const
             name: g
             type: &unrestrictedFloat
+              <<: *type
               name: unrestricted float
-              suffix: *emptySuffix
             value: 5.5
           - <<: *const
             name: h
             type: &double
+              <<: *type
               name: double
-              suffix: *emptySuffix
             value: -.inf
           - <<: *const
             name: i
             type: &unrestrictedDouble
+              <<: *type
               name: unrestricted double
-              suffix: *emptySuffix
             value: .inf
           - <<: *const
             name: j
             type: &boolean
+              <<: *type
               name: boolean
-              suffix: *emptySuffix
             value: true
           - <<: *const
             name: k
@@ -449,20 +463,20 @@ tests:
           - <<: *const
             name: l
             type: &byte
+              <<: *type
               name: byte
-              suffix: *emptySuffix
             value: 5
           - <<: *const
             name: m
             type: &octet
+              <<: *type
               name: octet
-              suffix: *emptySuffix
             value: 6
           - <<: *const
             name: n
             type:
+              <<: *type
               name: Something
-              suffix: *emptySuffix
             value: null
   - name: Interface members
     idl: |
@@ -484,3 +498,19 @@ tests:
       - <<: *implements
         name: Document
         implements: ParentNode
+  - name: Unions
+    idl: |
+         interface ParentNode {
+           void prepend((Node or DOMString)... nodes);
+           void append((Node or DOMString)... nodes);
+         };
+    expected:
+      - <<: *interface
+        name: ParentNode
+        members:
+          - <<: *operation
+            name: prepend
+            arguments: [{<<: *argument, name: nodes, ellipsis: true, type: [<<: *Node, <<: *DOMString]}]
+          - <<: *operation
+            name: append
+            arguments: [{<<: *argument, name: nodes, ellipsis: true, type: [<<: *Node, <<: *DOMString]}]

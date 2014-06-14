@@ -365,8 +365,9 @@ Argument
 
 OptionalOrRequiredArgument
     : "optional" Type ArgumentName Default
+        {$$ = {type: $2, name: $3, ellipsis: false, optional: true, default: $4}}
     | Type Ellipsis ArgumentName
-        {$$ = {type: $1, name: $3}};
+        {$$ = {type: $1, name: $3, optional: false, ellipsis: $2}};
 
 ArgumentName
     : ArgumentNameKeyword
@@ -374,7 +375,9 @@ ArgumentName
 
 Ellipsis
     : "..."
-    | ε;
+        {$$ = true}
+    |
+        {$$ = false};
 
 ExceptionMember
     : Const
@@ -489,7 +492,8 @@ SingleType
     | "any" TypeSuffixStartingWithArray;
 
 UnionType
-    : "(" UnionMemberType "or" UnionMemberType UnionMemberTypes ")";
+    : "(" UnionMemberType "or" UnionMemberType UnionMemberTypes ")"
+        {$$ = $5; $$.unshift($4); $$.unshift($2);};
 
 UnionMemberType
     : NonAnyType
@@ -498,31 +502,33 @@ UnionMemberType
 
 UnionMemberTypes
     : "or" UnionMemberType UnionMemberTypes
-    | ε;
+        {$$ = $3; $$.unshift($2);}
+    |
+        {$$ = []};
 
 NonAnyType
     : PrimitiveType TypeSuffix
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | "ByteString" TypeSuffix
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | "DOMString" TypeSuffix
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | identifier TypeSuffix
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | "sequence" "<" Type ">" Null
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | "object" TypeSuffix
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | "Date" TypeSuffix
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | "RegExp" TypeSuffix
-        {$$ = {name: $1, suffix: $2}};
+        {$$ = $2; $$.name = $1};
 
 ConstType
     : PrimitiveType Null
-        {$$ = {name: $1, suffix: $2}}
+        {$$ = $2; $$.name = $1}
     | identifier Null
-         {$$ = {name: $1, suffix: $2}};
+        {$$ = $2; $$.name = $1};
 
 PrimitiveType
     : UnsignedIntegerType
