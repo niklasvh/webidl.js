@@ -24,7 +24,6 @@ other           [^\t\n\r 0-9A-Za-z]
 ')'             {return ')'}
 '='             {return '='}
 '?'             {return '?'}
-'-'             {return '-'}
 '...'           {return '...'}
 'attribute'     {return 'attribute'}
 'boolean'       {return 'boolean'}
@@ -40,6 +39,7 @@ other           [^\t\n\r 0-9A-Za-z]
 'float'         {return 'float'}
 'implements'    {return 'implements'}
 'inherit'       {return 'inherit'}
+'-Infinity'     {return '-Infinity'}
 'Infinity'      {return 'Infinity'}
 'interface'     {return 'interface'}
 'long'          {return 'long'}
@@ -222,7 +222,7 @@ BooleanLiteral
 FloatLiteral
     : float
         {$$ = parseFloat($1)}
-    | "-" "Infinity"
+    | "-Infinity"
         {$$ = -Infinity}
     | "Infinity"
         {$$ = Infinity}
