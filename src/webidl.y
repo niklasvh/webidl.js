@@ -24,6 +24,8 @@ other           [^\t\n\r 0-9A-Za-z]
 ')'             {return ')'}
 '='             {return '='}
 '?'             {return '?'}
+'<'             {return '<'}
+'>'             {return '>'}
 '...'           {return '...'}
 'attribute'     {return 'attribute'}
 'boolean'       {return 'boolean'}
@@ -50,6 +52,7 @@ other           [^\t\n\r 0-9A-Za-z]
 'optional'      {return 'optional'}
 'or'            {return 'or'}
 'readonly'      {return 'readonly'}
+'sequence'      {return 'sequence'}
 'short'         {return 'short'}
 'stringifier'   {return 'stringifier'}
 'true'          {return 'true'}
